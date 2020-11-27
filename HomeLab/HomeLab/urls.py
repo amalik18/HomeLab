@@ -15,8 +15,30 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.contrib.auth.models import User
+from rest_framework import routers, serializers, viewsets
+
+
+# Serializers define the API representation
+class UserSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = User
+        fields = ['url', 'username', 'email', 'is_staff', ]
+
+
+# Viewsets defin the view behavior
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+
+# routers provide an easy way of automatically determining the URLConf
+router = routers.DefaultRouter()
+router.register(prefix=r'users', viewset=UserViewSet)
 
 urlpatterns = [
+    path('api/', include(router.urls)),
+    path('api-auth/', include('rest_framework.urls')),
     path('', include('homepage.urls')),
     path('admin/', admin.site.urls),
     path('polls/', include('polls.urls')),
